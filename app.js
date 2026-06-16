@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const Listing = require("./models/listing");
+
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
@@ -9,6 +10,7 @@ const wrapAsync = require("./utils/wrapAsync");
 const expressError = require("./utils/expressError");
 const mongo_url = "mongodb://127.0.0.1:27017/urbanstay";
 const {listingSchema} = require("./schema");
+const Review = require("./models/review.js");
 main().then(() => {
     console.log("Database Connected");
 }).catch((err) => {
@@ -98,6 +100,18 @@ app.delete("/listings/:id", wrapAsync(async (req, res) => {
 }));
 
 
+//reviews
+// post route
+
+app.post("/listings/:id/reviews", async(req, res) =>{
+   let listing = await Listing.findById(req.params.id);
+   let newReview = new Review(req.body.review);
+   listing.reviews.push(newReview);
+
+   await newReview.save();
+   await listing.save();
+   res.redirect(`/listings/${listing._id}`);
+})
 
 // app.get("/testListing", async(req, res) =>{
 //     let sampleListing = new Listing({
