@@ -7,11 +7,15 @@ const ejsMate = require("ejs-mate");
 const expressError = require("./utils/expressError");
 const session = require("express-session");
 const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const User = require("./models/user.js");
 
 const mongo_url = "mongodb://127.0.0.1:27017/urbanstay";
 
-const listings = require("./routes/listings.js");
-const reviews = require("./routes/reviews.js");
+const listingRouter = require("./routes/listings.js");
+const reviewRouter = require("./routes/reviews.js");
+const userRouter = require("./routes/user.js");
 
 
 main().then(() => {
@@ -33,8 +37,8 @@ app.use(express.static(path.join(__dirname, "/public")));
 
 const sessionOptions = { 
     secret: "mysupersecretcode", 
-    resave: "false", 
-    saveUninitialized: "true",
+    resave: false, 
+    saveUninitialized: true,
     cookie : {
         expires : Date.now() + 7 * 24 * 60 * 60 * 1000, //1 week
         maxAge : 7 * 24 * 60 * 60 * 1000,
@@ -48,8 +52,22 @@ app.get("/", (req, res) => {
     res.send("Hi, i am root");
 });
 
+
+//flash and session
 app.use(session(sessionOptions));
 app.use(flash());
+
+
+//passport
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+// use static serialize and deserialize of model for passport session support
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+
 
 app.use((req, res, next) =>{
     res.locals.success = req.flash("success");
@@ -57,9 +75,21 @@ app.use((req, res, next) =>{
     next();
 });
 
-app.use("/listings", listings);
-app.use("/listings/:id/reviews", reviews);
+//register demo user route
+// app.get("/demouser", async(req, res) =>{
+//     let fakeUser = new User({
+//         email : "komal@gmail.com",
+//         username : "komal"
+//     });
+//     const registerUser = await User.register(fakeUser, "abcdef");
+//     console.log(registerUser);
+//     res.send(registerUser);
+// });
 
+
+app.use("/listings", listingRouter);
+app.use("/listings/:id/reviews", reviewRouter);
+app.use("/", userRouter);
 
 
 app.use((req, res, next)=>{
@@ -67,6 +97,8 @@ app.use((req, res, next)=>{
 });
 
 app.use((err, req, res, next) => {
+    console.log(err);
+    console.log(err.stack);
     let {statusCode= 500, message="something went wrong!"} = err;
     res.status(statusCode).render("error.ejs", {message});
     // res.status(statusCode).send(message);
