@@ -25,7 +25,21 @@ body{
     color: #222222 !important;
 }
 
+.addNew{
+    border-radius: 50px;
+}
+.addNew:hover{
+    border: rgb(18, 15, 15);
+    border-radius: 50px;
+    background-color: #e7e5e5;
+}
 
+.search-form{
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+}
 /* footer */
 .f-info-links, .f-info-socials, .f-info-brand{
     width:100%;
