@@ -15,9 +15,8 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const User = require("./models/user.js");
 
-// const mongo_url = "mongodb://127.0.0.1:27017/urbanstay";
 const dburl = process.env.ATLASDB_URL;
-// console.log("DB URL:", dburl);
+
 
 const listingRouter = require("./routes/listings.js");
 const reviewRouter = require("./routes/reviews.js");
@@ -46,7 +45,7 @@ console.log(MongoStore);
 const store = MongoStore.create({
     mongoUrl: dburl,
     crypto : {
-        secret : "mysupersecretcode"
+        secret : process.env.SECRET
     },
     touchAfter : 24 * 3600,
 });
@@ -56,7 +55,7 @@ store.on("error", (error)=>{
 });
 const sessionOptions = { 
     store,
-    secret: "mysupersecretcode", 
+    secret: process.env.SECRET, 
     resave: false, 
     saveUninitialized: true,
     cookie : {
