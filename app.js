@@ -80,16 +80,7 @@ app.use((req, res, next) =>{
     next();
 });
 
-//register demo user route
-// app.get("/demouser", async(req, res) =>{
-//     let fakeUser = new User({
-//         email : "komal@gmail.com",
-//         username : "komal"
-//     });
-//     const registerUser = await User.register(fakeUser, "abcdef");
-//     console.log(registerUser);
-//     res.send(registerUser);
-// });
+
 
 
 app.use("/listings", listingRouter);
@@ -106,7 +97,6 @@ app.use((err, req, res, next) => {
     console.log(err.stack);
     let {statusCode= 500, message="something went wrong!"} = err;
     res.status(statusCode).render("error.ejs", {message});
-    // res.status(statusCode).send(message);
 });
 
 app.listen(8080, () => {
