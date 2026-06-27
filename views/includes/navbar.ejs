@@ -1,3 +1,19 @@
+<style>
+    .search-input{
+        padding: 0.5rem;
+    }
+    .search-btn{
+        background-color: #E00b41;
+        color: white;
+    }
+    .search-btn:hover{
+        background-color: transparent;
+        border : 1px solid #E00b41;
+        color: #000;
+        opacity: 0.8;
+    }
+</style>
+
 <nav class="navbar navbar-expand-md border-bottom sticky-top">
     <div class="container-fluid">
         <a class="navbar-brand" href="/"><img src="/images/logo.png" alt="logo" style="height: 20%;
@@ -8,25 +24,32 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <div class="navbar-nav">
-                <a class="nav-link active" href="/">Home</a>
-                <a class="nav-link" href="/listings">All Listings</a>
-                <a class="nav-link" href="/listings/new">
-                    Add new listing
-                </a>
+                <a class="nav-link" href="/listings">Explore</a>
+
             </div>
         </div>
 
-        <div class="navbar-nav ms-auto">
-            <% if(!currUser){ %>
-                <a class="nav-link active" href="/signup">Sign up</a>
-                <a class="nav-link" href="/login">Login</a>
-            <% } %>
+        <div class="navbar-nav mr-auto">
+            <form class="d-flex search-form" role="search">
+                <input class="form-control me-2 search-input" type="search" placeholder="Search Destination" aria-label="Search" />
+                <button class="btn search-btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
+        </div>
 
-            <% if(currUser) { %>
-                <a class="nav-link" href="/logout">
-                    Log out
-                </a>
-            <% } %>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link addNew" href="/listings/new">
+                Urbanstay your home
+            </a>
+            <% if(!currUser){ %>
+                <a class="nav-link active" href="/signup"><b>Sign up</b></a>
+                <a class="nav-link" href="/login"><b>Login</b></a>
+                <% } %>
+
+                    <% if(currUser) { %>
+                        <a class="nav-link" href="/logout">
+                            <b>Log out</b>
+                        </a>
+                        <% } %>
         </div>
 
     </div>
