@@ -9,12 +9,14 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const expressError = require("./utils/expressError");
 const session = require("express-session");
+const { MongoStore }= require("connect-mongo");
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const User = require("./models/user.js");
 
-const mongo_url = "mongodb://127.0.0.1:27017/urbanstay";
+const dburl = process.env.ATLASDB_URL;
+
 
 const listingRouter = require("./routes/listings.js");
 const reviewRouter = require("./routes/reviews.js");
@@ -27,7 +29,7 @@ main().then(() => {
     console.log(err);
 });
 async function main() {
-    await mongoose.connect(mongo_url);
+    await mongoose.connect(dburl);
 };
 
 
@@ -38,8 +40,22 @@ app.use(methodOverride("_method"));
 app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
 
+console.log(MongoStore);
+
+const store = MongoStore.create({
+    mongoUrl: dburl,
+    crypto : {
+        secret : process.env.SECRET
+    },
+    touchAfter : 24 * 3600,
+});
+
+store.on("error", (error)=>{
+    console.log("Error on mongo session store", error);
+});
 const sessionOptions = { 
-    secret: "mysupersecretcode", 
+    store,
+    secret: process.env.SECRET, 
     resave: false, 
     saveUninitialized: true,
     cookie : {
@@ -51,9 +67,9 @@ const sessionOptions = {
 
 
 
-app.get("/", (req, res) => {
-    res.send("Hi, i am root");
-});
+// app.get("/", (req, res) => {
+//     res.send("Hi, i am root");
+// });
 
 
 //flash and session
@@ -80,7 +96,16 @@ app.use((req, res, next) =>{
     next();
 });
 
-
+//register demo user route
+// app.get("/demouser", async(req, res) =>{
+//     let fakeUser = new User({
+//         email : "komal@gmail.com",
+//         username : "komal"
+//     });
+//     const registerUser = await User.register(fakeUser, "abcdef");
+//     console.log(registerUser);
+//     res.send(registerUser);
+// });
 
 
 app.use("/listings", listingRouter);
@@ -97,6 +122,7 @@ app.use((err, req, res, next) => {
     console.log(err.stack);
     let {statusCode= 500, message="something went wrong!"} = err;
     res.status(statusCode).render("error.ejs", {message});
+    // res.status(statusCode).send(message);
 });
 
 app.listen(8080, () => {
